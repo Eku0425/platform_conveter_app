@@ -12,4 +12,73 @@
 <img src= "https://github.com/user-attachments/assets/3898ec23-efff-4f9e-9889-6b3dc5d88673"height=25% width=25%>
 
 
+# platform converter :
+Creating a platform converter app using Flutter with a Cupertino design and database integration is a great way to ensure a native iOS feel while maintaining cross-platform functionality. Here's how to do it step by step:
+Set Up Flutter Environment Make sure you have Flutter installed and set up. Create a new Flutter project:
+Add Dependencies Update your pubspec.yaml file to include the necessary dependencies for SQLite:
+yaml
+Copy code
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  sqflite: ^2.0.0+3
+  path: ^1.8.0
+Create the UI with Cupertino Widgets Use Cupertino widgets to build the user interface. Here's a simple implementation of the main screen:
+Copy code
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoApp(
+      title: 'Platform Converter',
+      home: ConverterScreen(),
+    );
+  }
+}
+Implement Database Logic Set up SQLite to store conversion history or user preferences. Here’s a basic example of how to implement the database helper:
+Copy code
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+
+class DatabaseHelper {
+  static final DatabaseHelper _instance = DatabaseHelper._internal();
+  factory DatabaseHelper() => _instance;
+  DatabaseHelper._internal();
+
+  Database? _database;
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDB();
+    return _database!;
+  }
+
+  Future<Database> _initDB() async {
+    String path = join(await getDatabasesPath(), 'converter.db');
+    return await openDatabase(path, version: 1, onCreate: (db, version) {
+      return db.execute(
+        "CREATE TABLE conversions(id INTEGER PRIMARY KEY, value REAL, unit TEXT)",
+      );
+    });
+  }
+
+  Future<void> insertConversion(double value, String unit) async {
+    final db = await database;
+    await db.insert('conversions', {'value': value, 'unit': unit});
+  }
+
+  Future<List<Map<String, dynamic>>> getConversions() async {
+    final db = await database;
+    return await db.query('conversions');
+  }
+}
+
+
 
